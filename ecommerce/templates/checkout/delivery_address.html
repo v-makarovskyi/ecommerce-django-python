@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Адрес доставки{% endblock %}
+
+{% block content %}
+
+<div class="container">
+    <div class="col-12">
+        <h1 class="h2">Адреса доставки</h1>
+    </div>
+    <div class="col-12">
+        <p>Пожалуйста, выберите адрес для доставки заказа</p>
+    </div>
+    <hr>
+</div>
+
+<div class="container mb-5">
+    <div class="row g-3">
+        {% if addresses|length == 0 %}
+            <div class="col-12">Нет адресов доставки</div>
+        {% else %}
+        <div class="col-md-5 col-lg-4 order-md-last order-3 p-0">
+            <div class="d-flex justify-content-between bg-highlight ms-0">
+                <div class="p-2 bg-highlight">Стоимость:</div>
+                <div class="p-2 bg-highlight">
+                  <span class="fw-bolf h5" id="subtotal"
+                    >{{cart.get_subtotal_price}}</span
+                  >
+                  грн
+                </div>
+              </div>
+              <div class="d-flex justify-content-between bg-highlight">
+                <div class="p-2 bg-highlight">Стоимость доставки:</div>
+                <div class="p-2 bg-highlight">
+                  <span class="fw-bolf h5" id="delivery_price">{{ cart.get_delivery_price }}</span>
+                  грн
+                </div>
+              </div>
+              <div class="d-flex justify-content-between bg-highlight">
+                <div class="p-2 bg-highlight">Итого:</div>
+                <div class="p-2 bg-highlight">
+                  <span class="fw-bolf h5" id="total">{{ cart.get_total_price }}</span>
+                  грн
+                </div>
+              </div>
+              <a
+                role="button"
+                type="button"
+                href="{% url 'checkout:payment_selection' %}"
+                class="btn btn-success fw-bold w-100"
+                >
+                Выбрать вариант оплаты
+                </a>
+        </div>
+        <div class="col-md-7 col-lg-8">
+          {% for address in addresses %}
+          {% if not address.default %}
+            <h1 class="h5 p-4">Другие адреса:</h1>
+          {% endif %}
+          <div class="card mb-3 border-1 rounder-0 me-md-4" data-index="{{ address.id }}">
+            <div class="row g-0">
+              <div class="col">
+                <div class="card pb-3 rounder-0">
+                   {% if address.default %}
+                  <div class="card-header bg-white text-muted">
+                   Выбран адрес по умолчанию
+                   
+                    &nbsp;
+                  </div>
+                   {% endif %}
+                  <div class="card-body small pb-1">
+                    <p class="card-text m-0 fw-bold">Полное имя: {{ address.full_name }}</p>
+                    <p class="card-text m-0">Основной адрес: {{ address.address_line }}</p>
+                    <p class="card-text m-0">Дополнительный адрес: {{ address.address_line2 }}</p>
+                    <p class="card-text m-0">Населенный пункт: {{ address.town_city }}</p>
+                    <p class="card-text m-0">Почтовый индекс: {{ address.postcode }}</p>
+                    <p class="card-text m-0">Контактный телефон: {{ address.phone }}</p>
+                    <div class="pt-5">
+                      <a 
+                      type="button" 
+                      role="button" 
+                      class="btn btn-outline-danger" 
+                      href="{% url 'account:edit_address' address.id %}"
+                      >
+                      Изменить
+                    </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    </div>
+</div>
+
+{% endblock %}

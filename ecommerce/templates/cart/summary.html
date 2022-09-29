@@ -1,0 +1,213 @@
+{% extends 'base.html' %} 
+{% load static %} 
+{% block title %}Корзина{% endblock %} 
+
+{%block content%}
+
+<div class="container">
+  <div class="col-12">
+    <h1 class="h2">Моя корзина</h1>
+  </div>
+  <div class="col-12">
+    <p>На этой странице можно управлять <b>товарами</b> в корзине</p>
+  </div>
+  <hr />
+</div>
+<div class="container">
+  <div class="row g-3 mb-5">
+    {% if cart|length == 0 %}
+    <div class="col-12">Корзина пуста :( <a type="button" role="button" class="btn btn-outline-primary ms-2" href="{% url 'catalogue:store_home' %}">За покупками!</a></div>
+    {% else %}
+    <div class="col-12 bg-light p-3 d-flex justify-content-between">
+      <div class="d-flex d-flex-inline">
+        <div class="pe-4">Заказ</div>
+        <div class="dropdown">
+          <a
+            class="text-reset text-decoration-none dropdown-toggle"
+            href="#"
+            role="link"
+            id="dropdownLink"
+            data-bs-toggle="dropdown"
+            aria-expanded="false"
+          >
+            Варианты доставки
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="12"
+              height="12"
+              fill="currentColor"
+              class="bi bi-chevron-down"
+              viewBox="0 0 16 16"
+            >
+              <path
+                fill-rule="evenodd"
+                d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"
+              />
+            </svg>
+          </a>
+          <ul
+            class="dropdown-menu dropdown-menu-dark"
+            aria-labelledby="dropdownLink"
+          >
+            <li class="dropdown-item text-nowrap">
+              Доставка на следующий день
+            </li>
+            <li class="dropdown-item">Premium доставка</li>
+          </ul>
+        </div>
+      </div>
+      <div class="text-end">
+        <div>
+          Общая стоимость: <span id="subtotal" class="fw-bold">{{ cart.get_subtotal_price }}</span>
+          <span class="">грн</span>
+        </div>
+        <div>
+          Доставка <span class="text-muted">(на следующий день): </span
+          ><span class="fw-bold">47</span> грн
+        </div>
+        <div class="pt-2">
+          <span class="fw-bold" style="color: red">Всего к оплате:</span>
+          <span id="total" class="h5">{{ cart.get_total_price }}</span> грн
+        </div>
+      </div>
+    </div>
+    <div class="col-md-5 col-lg-4 order-2 pt-3">
+      <div class="d-grid gap-2">
+        <a href="{% url 'checkout:deliverychoices' %}" role="button" class="btn btn-success fw-bold"
+          >Оформить заказ</a
+        >
+        <button class="btn btn-light">Вернуться позже</button>
+      </div>
+    </div>
+    <div class="col-md-7 col-lg-8 pt-3">
+      {% for item in cart %} 
+      {% with product=item.product %}
+      <div
+        class="card mb-3 border-0 product-item"
+        data-index="{{ product.id }}"
+      >
+        <div class="row g-0">
+          <div class="col-md-2 d-md-block d-none">
+            {% for image in product.product_image.all %} 
+            {% if image.is_feature %}
+            <img
+              class="img-fluid"
+              src="{{ image.image.url }}"
+              alt="{{ image.alt_text }}"
+            />
+            {% endif %} 
+            {% endfor %}
+          </div>
+          <div class="col-md-10 ps-md-3">
+            <div class="card-body p-1">
+              <a
+                class="text-decoration-none text-reset"
+                href="{{ item.product.get_absolute_url }}"
+              >
+                <p class="card-text pb-3" style="color: teal">
+                  {{ product.title }}
+                </p>
+              </a>
+              <label class="me-2" for="select">Количество: </label>
+              <select
+                class="me-2"
+                name=""
+                id="select{{ product.id }}"
+                style="width: 50px; height: 32px; border-radius: 5px;"
+              >
+                <option value="" selected disabled hidden>
+                  {{ item.qty }}
+                </option>
+                <option value="">1</option>
+                <option value="">2</option>
+                <option value="">3</option>
+                <option value="">4</option>
+              </select>
+              <a
+                type="button"
+                role="button"
+                id="update-button"
+                data-index="{{ product.id }}"
+                class="btn btn-outline-success btn-sm text-decoration-none border-0"
+                href=""
+                >Обновить</a
+              >
+              <a
+                type="button"
+                role="button"
+                id="delete-button"
+                data-index="{{ product.id }}"
+                class="btn btn-outline-danger btn-sm text-decoration-none border-0"
+                href=""
+                >Удалить</a
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+      <hr>
+      {% endwith %} 
+      {% endfor %}
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<script>
+  // Delete Item
+  $(document).on("click", "#delete-button", function (e) {
+    e.preventDefault();
+    var prodid = $(this).data("index");
+    $.ajax({
+      type: "POST",
+      url: '{% url "cart:cart_delete" %}',
+      data: {
+        productid: $(this).data("index"),
+        csrfmiddlewaretoken: "{{csrf_token}}",
+        action: "post",
+      },
+      success: function (json) {
+        $('.product-item[data-index="' + prodid + '"]').remove();
+
+        if (json.qty == 0) {
+          total = 0
+          subtotal = 0
+        } else {
+          total = (parseFloat(json.subtotal) + 47).toFixed(2);
+          subtotal = json.subtotal
+        }
+
+        document.getElementById("subtotal").innerHTML = subtotal;
+        document.getElementById("basket-qty").innerHTML = json.qty;
+        document.getElementById("total").innerHTML = total;
+      },
+      error: function (xhr, errmsg, err) {},
+    });
+  });
+
+  // Update Item
+  $(document).on("click", "#update-button", function (e) {
+    e.preventDefault();
+    var prodid = $(this).data("index");
+    $.ajax({
+      type: "POST",
+      url: '{% url "cart:cart_update" %}',
+      data: {
+        productid: $(this).data("index"),
+        productqty: $("#select" + prodid + " option:selected").text(),
+        csrfmiddlewaretoken: "{{csrf_token}}",
+        action: "post",
+      },
+      success: function (json) {
+
+        total = (parseFloat(json.subtotal) + 47).toFixed(2);
+        document.getElementById("cart-qty").innerHTML = json.qty;
+        document.getElementById("subtotal").innerHTML = json.subtotal;
+        document.getElementById("total").innerHTML = total;
+      },
+      error: function (xhr, errmsg, err) {},
+    });
+  });
+</script>
+
+{%endblock%}

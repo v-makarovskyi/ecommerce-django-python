@@ -1,0 +1,48 @@
+{% extends "../sub_base.html" %}
+{% block title %}Edit Profile{% endblock %}
+{% block sub_content %}
+
+<div class="col-12 col-sm-8 col-md-5 mx-auto mb-5">
+<form class="account-form" method="post" enctype="multipart/form-data" %}">
+    {% if user_form.is_valid %}
+    <div class="alert alert-primary" role="alert">
+        Профиль успешно обновлен!
+    </div>
+    <p class="small text-center pt-0">
+        <a href="{% url "account:dashboard" %}">На страницу профиля</a>
+    </p>
+    {%else%}
+    <h3>Изменить свои данные</h3>
+    <p>Вы можете редактировать свою учетную запись, используя следующую форму:</p>
+    {% endif %}
+    {% if form.errors %}
+    <div class="alert alert-primary" role="alert">
+        Error: Please try again!
+    </div>
+    {% endif %}
+    {% csrf_token %}
+    <div class="form-control">
+        <label class="small font-weight-bold">{{ user_form.email.label}}</label>
+    {{ user_form.email }}
+    </div>
+    <div class="form-control">
+         <label class="small font-weight-bold">{{ user_form.user_name.label}}</label>
+    {{ user_form.user_name }}
+    </div>
+    <div class="form-control">
+         <label class="small font-weight-bold">{{ user_form.mobile.label }}</label>
+    {{ user_form.mobile }}
+    </div>
+   <button class="btn btn-primary btn-block py-2 mb-4 mt-5 fw-bold w-100" type="submit" value="Save changes">Сохранить изменения</button>
+    <hr class="mb-3">
+</form>
+
+<form class="account-form_del" action="{% url "account:delete_user" %}" method="post">
+    {% csrf_token %}
+    <p class=" h3 pt-4 font-weight-bold">Удалить аккаунт</p>
+    <p>Вы уверены, что хотите удалить свой аккаунт?</p>
+    <button type="submit" role="button" class="btn btn-danger btn-block py-2 mb-4 mt-1 fw-bold w-60 align-self-center">Удалить аккаунт</button>
+</form>
+</div>
+
+{% endblock %}

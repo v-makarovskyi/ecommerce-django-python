@@ -1,0 +1,55 @@
+{% extends "../sub_base.html" %}
+{% block title %}Edit Addresses{% endblock %}
+
+{% block sub_content %}
+<div class="col-12 mx-auto">
+  <h1 class="h3 text-center">Добавить/Изменить Адрес</h1>
+  <div class="text-center">Добавьте новый<b> адрес</b> и детали доствавки</div>
+  <hr />
+  <form name="address_form" class="account-form" method="post" enctype="multipart/form-data">
+    {% if form.errors %}
+    <div class="alert alert-primary" role="alert">
+      Error: Please try again!
+    </div>
+    {% endif %}
+    {% csrf_token %}
+    <div class="form-control">
+        <label class="small fw-bold">{{ form.full_name.label}}</label>
+    {{ form.full_name }}
+    </div>
+    <div class="form-control">
+        <label class="small fw-bold">{{ form.phone.label}}</label>
+    {{ form.phone }}
+    </div>
+    <div class="form-control">
+        <label class="small fw-bold">{{ form.address_line.label}}</label>
+    {{ form.address_line }} 
+    </div>
+    <div class="form-control">
+        <label class="small fw-bold">{{ form.address_line2.label}}</label>
+    {{ form.address_line2 }}
+    </div>
+    <div class="form-control">
+         <label class="small fw-bold">{{ form.town_city.label}}</label>
+    {{ form.town_city }}
+    </div>
+    <div class="form-control">
+        <label class="small fw-bold">{{ form.postcode.label}}</label>
+    {{ form.postcode }}
+    </div>
+    <button class="btn btn-primary btn-block py-2 mb-4 mt-4 fw-bold w-100" type="button" value="Submit" onclick="submitForm()">
+    Добавить адресс
+    </button>
+  </form>
+
+</div>
+
+<script> 
+function submitForm() {
+   const form = document.getElementsByName('address_form')[0];
+   form.submit(); // Submit the form
+   form.reset();  // Reset all form data
+   return false; // Prevent page refresh
+}
+</script>
+{% endblock %}

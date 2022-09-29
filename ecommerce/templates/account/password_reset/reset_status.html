@@ -1,0 +1,17 @@
+{% extends "../sub_base.html" %}
+{% block title %}Reset Status{% endblock %}
+{% block content %}
+
+<div class="container">
+    <div>
+        {% if 'email' in request.get_full_path %}
+        <p>Проверьте свой email для получения инструкций</p>
+        {% endif%}
+        {% if 'complete' in request.get_full_path %}
+        <h3 class="mb-4">Пароль успешно обновлен</h3>
+        <a href="{% url "account:login" %}">Войти</a>
+        {% endif%}
+    </div>
+</div>
+
+{% endblock %}

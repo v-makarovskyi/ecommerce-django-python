@@ -1,0 +1,117 @@
+{% extends "../base.html" %} 
+{% load static %} 
+{% block stylesheet %}{% static 'store/css/store.css' %}{% endblock %} 
+{% block title %} {% if product %}{{product.title }}{% else %}Product{% endif %} {% endblock %} 
+
+
+{% block content%}
+
+<div class="container">
+  {% if messages %} <div class="alert alert-warning" alert-{{ message.tags }}"
+  role="alert"> {% for message in messages %} {{ message }} -
+  <a class="alert-link" href="{% url 'account:wishlist' %}"
+    >Мой список желаний</a
+  >
+  {% endfor %}
+</div>
+{% endif %}
+
+<div class="row g-3">
+  <div class="col-md-5 ps-3 col-lg-5 order-md-last p-0 order-1">
+    <div class="d-grid gap-2">
+      <div class="d-flex-inline justify-content-between">
+        <div>
+          <span class="h3">{{ product.regular_price }} грн</span>
+          <p class="text-muted">* все налоги включены</p>
+        </div>
+      </div>
+      <div>
+        <label for="select">Количество</label>
+        <select id="select" class="h6 px-1 py-2">
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="4">4</option>
+        </select>
+      </div>
+    </div>
+    <hr />
+    <button
+      id="addCart"
+      type="button"
+      value="{{ product.id }}"
+      class="btn btn-success"
+    >
+      <i class="fa-solid fa-cart-shopping"></i>
+      <span class="m-1 fw-normal">В корзину</span>
+    </button>
+    <a
+      role="button"
+      class="btn btn-outline-danger"
+      href="{% url 'account:user_wishlist' product.id %}"
+      aria-disabled="true"
+      >В список желаний</a
+    >
+  </div>
+  <div class="col-md-7 col-lg-7 p-0">
+    <div class="card mb-3 border-0">
+      <div class="row g-0">
+        <div class="col-md-12">
+          <div class="card-body p-1">
+            <h1 class="h3 mb-0 pb-4">{{ product.title }}</h1>
+
+            {% for image in product.product_image.all %} 
+            {% if image.is_feature%}
+            <img
+              src="{{ image.image.url }}"
+              class="img-fluid d-block mx-auto pb-3"
+              width="300px"
+              alt="{{ image.alt_text }}"
+            />
+            {% else %}
+
+            <img
+              class="d-block-inline"
+              style="
+                padding: 5px;
+                border: 1px solid #dadada;
+                width: 100px;
+                height: 100px;
+                margin-right: 30px;
+              "
+              alt="Responsive image"
+              src="{{ image.image.url }}"
+              alt="{{ image.image.alt_text }}"
+            /> 
+
+            {% endif %} 
+            {% endfor %} 
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  $(document).on('click', '#addCart', function (e) {
+      e.preventDefault();
+      $.ajax({
+        type: 'POST',
+        url: '{% url "cart:add_to_cart" %}',
+        data: {
+          productid: $('#addCart').val(),
+          productqty: $('#select option:selected').text(),
+          csrfmiddlewaretoken: "{{csrf_token}}",
+          action: 'post'
+        },
+        success: function (json) {
+          document.getElementById("cart-qty").innerHTML = json.qty
+        },
+        error: function (xhr, errmsg, err) {}
+      });
+    })   
+  
+</script>
+
+{% endblock content %}
